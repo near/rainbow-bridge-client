@@ -1,6 +1,6 @@
 {
-  "name": "@near-eth/nep141-erc20",
-  "version": "1.4.0",
+  "name": "@near-eth/rainbow",
+  "version": "0.0.0",
   "license": "(MIT AND Apache-2.0)",
   "main": "dist/index.js",
   "files": [
@@ -10,25 +10,16 @@
     "build": "rm -rf dist && tsc --build tsconfig.json"
   },
   "devDependencies": {
-    "@types/bn.js": "^5.1.0",
     "@types/node": "^14.14.28",
     "typescript": "4.1.5"
   },
   "dependencies": {
     "@near-eth/client": "workspace:*",
+    "@near-eth/near-ether": "workspace:*",
+    "@near-eth/nep141-erc20": "workspace:*",
     "@near-eth/utils": "workspace:*",
-    "bn.js": "^5.1.3",
-    "bs58": "^4.0.1",
-    "eth-object": "aurora-is-near/eth-object#fb57468391112502792ba5fd8c586f5d2467a89f",
-    "eth-revert-reason": "^1.0.3",
-    "ethereumjs-util": "^7.0.10",
     "find-replacement-tx": "workspace:*",
-    "lite-merkle-patricia-tree": "workspace:*",
-    "near-api-js": "https://github.com/near/near-api-js#fef7f683fca86980f3509987226fbc7f63b455cb",
-    "promisfy": "^1.2.0",
-    "rlp": "^2.2.6",
-    "web3": "^1.3.4",
-    "web3-utils": "^1.3.4"
+    "lite-merkle-patricia-tree": "workspace:*"
   },
   "browserslist": [
     "since 2017-04"

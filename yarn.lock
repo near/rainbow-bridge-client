@@ -646,7 +646,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@near-eth/near-ether@workspace:packages/near-ether":
+"@near-eth/near-ether@workspace:*, @near-eth/near-ether@workspace:packages/near-ether":
   version: 0.0.0-use.local
   resolution: "@near-eth/near-ether@workspace:packages/near-ether"
   dependencies:
@@ -674,18 +674,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@near-eth/nep141-erc20@workspace:packages/nep141-erc20":
+"@near-eth/nep141-erc20@workspace:*, @near-eth/nep141-erc20@workspace:packages/nep141-erc20":
   version: 0.0.0-use.local
   resolution: "@near-eth/nep141-erc20@workspace:packages/nep141-erc20"
   dependencies:
-    "@commitlint/cli": "*"
-    "@commitlint/config-conventional": "*"
-    "@commitlint/travis-cli": "*"
     "@near-eth/client": "workspace:*"
     "@near-eth/utils": "workspace:*"
     "@types/bn.js": ^5.1.0
     "@types/node": ^14.14.28
-    "@yarnpkg/pnpify": ^2.4.0
     bn.js: ^5.1.3
     bs58: ^4.0.1
     eth-object: "aurora-is-near/eth-object#fb57468391112502792ba5fd8c586f5d2467a89f"
@@ -699,6 +695,21 @@ __metadata:
     typescript: 4.1.5
     web3: ^1.3.4
     web3-utils: ^1.3.4
+  languageName: unknown
+  linkType: soft
+
+"@near-eth/rainbow@workspace:packages/rainbow":
+  version: 0.0.0-use.local
+  resolution: "@near-eth/rainbow@workspace:packages/rainbow"
+  dependencies:
+    "@near-eth/client": "workspace:*"
+    "@near-eth/near-ether": "workspace:*"
+    "@near-eth/nep141-erc20": "workspace:*"
+    "@near-eth/utils": "workspace:*"
+    "@types/node": ^14.14.28
+    find-replacement-tx: "workspace:*"
+    lite-merkle-patricia-tree: "workspace:*"
+    typescript: 4.1.5
   languageName: unknown
   linkType: soft
 
@@ -3511,12 +3522,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "find-replacement-tx@workspace:packages/find-replacement-tx"
   dependencies:
-    "@commitlint/cli": "*"
-    "@commitlint/config-conventional": "*"
-    "@commitlint/travis-cli": "*"
-    "@types/bn.js": ^5.1.0
     "@types/node": ^14.14.28
-    "@yarnpkg/pnpify": ^2.4.0
     typescript: 4.1.5
     web3: ^1.3.4
     web3-core: ^1.3.6
@@ -4832,12 +4838,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "lite-merkle-patricia-tree@workspace:packages/lite-merkle-patricia-tree"
   dependencies:
-    "@commitlint/cli": "*"
-    "@commitlint/config-conventional": "*"
-    "@commitlint/travis-cli": "*"
-    "@types/bn.js": ^5.1.0
     "@types/node": ^14.14.28
-    "@yarnpkg/pnpify": ^2.4.0
     ethereumjs-util: ^7.0.10
     rlp: ^2.2.6
     typescript: 4.1.5

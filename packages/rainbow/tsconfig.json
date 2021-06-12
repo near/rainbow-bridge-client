@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["src/*"],
+  "compilerOptions": {
+    "allowJs": true,                          /* Allow javascript files to be compiled. */
+    "outDir": "./dist/"
+  }
+}
