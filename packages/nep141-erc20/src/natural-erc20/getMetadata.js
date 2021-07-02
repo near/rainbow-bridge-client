@@ -71,7 +71,6 @@ export default async function getMetadata (address) {
     getSymbol(address)
   ])
   return {
-    address,
     decimals,
     icon,
     name,
