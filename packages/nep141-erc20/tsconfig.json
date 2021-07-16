@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src/*"],
+  "include": ["src/*", "src/natural-erc20/getBalance.js"],
   "compilerOptions": {
     "allowJs": true,                          /* Allow javascript files to be compiled. */
     "outDir": "./dist/"

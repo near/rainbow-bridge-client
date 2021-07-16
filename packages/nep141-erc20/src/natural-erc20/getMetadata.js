@@ -2,18 +2,20 @@ import { ethers } from 'ethers'
 import getName from './getName'
 import { getEthProvider } from '@near-eth/client/dist/utils'
 
-async function getBalance (address, user) {
-  if (!user) return null
+const erc20Symbols = {}
+export async function getSymbol (address) {
+  if (erc20Symbols[address]) return erc20Symbols[address]
 
   const provider = getEthProvider()
-
-  const erc20Contract = new ethers.Contract(
-    address,
-    process.env.ethErc20AbiText,
-    provider
+  const contract = new web3.eth.Contract(
+    JSON.parse(process.env.ethErc20AbiText),
+    address
   )
 
-  return (await erc20Contract.balanceOf(user)).toString()
+  erc20Symbols[address] = await contract.methods.symbol().call()
+    .catch(() => address.slice(0, 5) + '…')
+
+  return erc20Symbols[address]
 }
 
 const erc20Decimals = {}
@@ -59,29 +61,21 @@ async function getIcon (address) {
 
 /**
  * Fetch name, icon, and decimals (precision) of ERC20 token with given `address`.
- *
- * Can provide an Ethereum wallet address as second argument, in which case that
- * wallet's balance will also be returned. If omitted, `balance` is returned as `null`.
- *
- * Values other than `balance` are cached.
- *
  * @param address ERC20 token contract address
- * @param user (optional) Ethereum wallet address that may hold tokens with given `address`
- *
- * @returns {Promise<{ address: string, balance: number|null, decimals: number, icon: string|null, name: string }>}
+ * @returns {Promise<{ address: string, decimals: number, icon: string|null, name: string }>}
  */
-export default async function getErc20Data (address, user) {
-  const [balance, decimals, icon, name] = await Promise.all([
-    getBalance(address, user),
+export default async function getMetadata (address) {
+  const [decimals, icon, name, symbol] = await Promise.all([
     getDecimals(address),
     getIcon(address),
-    getName(address)
+    getName(address),
+    getSymbol(address)
   ])
   return {
     address,
-    balance,
     decimals,
     icon,
-    name
+    name,
+    symbol
   }
 }
