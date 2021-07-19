@@ -8,7 +8,7 @@ import { stepsFor } from '@near-eth/client/dist/i18nHelpers'
 import * as status from '@near-eth/client/dist/statuses'
 import { getEthProvider, getNearAccount, formatLargeNum, getSignerProvider } from '@near-eth/client/dist/utils'
 import { urlParams, ethOnNearSyncHeight, findEthProof } from '@near-eth/utils'
-import { findReplacementTx, SearchError, TxValidationError } from 'find-replacement-tx'
+import { findReplacementTx, TxValidationError } from 'find-replacement-tx'
 
 export const SOURCE_NETWORK = 'ethereum'
 export const DESTINATION_NETWORK = 'near'
@@ -231,6 +231,7 @@ async function burn (transfer) {
       from: pendingBurnTx.from,
       to: pendingBurnTx.to,
       safeReorgHeight,
+      data: pendingBurnTx.data,
       nonce: pendingBurnTx.nonce
     },
     burnHashes: [...transfer.burnHashes, pendingBurnTx.hash]
@@ -257,26 +258,15 @@ async function checkBurn (transfer) {
       const tx = {
         nonce: transfer.ethCache.nonce,
         from: transfer.ethCache.from,
-        to: transfer.ethCache.to || process.env.eNEARAddress
+        to: transfer.ethCache.to,
+        data: transfer.ethCache.data
       }
-      const event = {
-        name: 'TransferToNearInitiated',
-        abi: process.env.eNEARAbiText,
-        address: process.env.eNEARAddress,
-        validate: ({ returnValues: { sender, amount, accountId } }) => {
-          return (
-            sender.toLowerCase() === transfer.sender.toLowerCase() &&
-            amount.toString() === transfer.amount &&
-            accountId === transfer.recipient
-          )
-        }
-      }
-      const foundTx = await findReplacementTx(provider, transfer.ethCache.safeReorgHeight, tx, event)
+      const foundTx = await findReplacementTx(provider, transfer.ethCache.safeReorgHeight, tx)
       if (!foundTx) return transfer
       burnReceipt = await provider.getTransactionReceipt(foundTx.hash)
     } catch (error) {
       console.error(error)
-      if (error instanceof SearchError || error instanceof TxValidationError) {
+      if (error instanceof TxValidationError) {
         return {
           ...transfer,
           errors: [...transfer.errors, error.message],

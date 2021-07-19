@@ -12,7 +12,7 @@ import { stepsFor } from '@near-eth/client/dist/i18nHelpers'
 import { track } from '@near-eth/client'
 import { borshifyOutcomeProof, urlParams, nearOnEthSyncHeight, findNearProof } from '@near-eth/utils'
 import { getEthProvider, getNearAccount, formatLargeNum, getSignerProvider } from '@near-eth/client/dist/utils'
-import { findReplacementTx, SearchError, TxValidationError } from 'find-replacement-tx'
+import { findReplacementTx, TxValidationError } from 'find-replacement-tx'
 
 export const SOURCE_NETWORK = 'near'
 export const DESTINATION_NETWORK = 'ethereum'
@@ -612,6 +612,7 @@ async function mint (transfer) {
       from: pendingMintTx.from,
       to: pendingMintTx.to,
       safeReorgHeight,
+      data: pendingMintTx.data,
       nonce: pendingMintTx.nonce
     },
     mintHashes: [...transfer.mintHashes, pendingMintTx.hash]
@@ -639,26 +640,15 @@ async function checkMint (transfer) {
       const tx = {
         nonce: transfer.ethCache.nonce,
         from: transfer.ethCache.from,
-        to: transfer.ethCache.to || process.env.eNEARAddress
+        to: transfer.ethCache.to,
+        data: transfer.ethCache.data
       }
-      const event = {
-        name: 'NearToEthTransferFinalised',
-        abi: process.env.eNEARAbiText,
-        address: process.env.eNEARAddress,
-        validate: ({ returnValues: { sender, amount, recipient } }) => {
-          return (
-            // sender.toLowerCase() === transfer.sender.toLowerCase() && // Don't check sender, anyone can mint
-            amount.toString() === transfer.amount &&
-            recipient.toLowerCase() === transfer.recipient.toLowerCase()
-          )
-        }
-      }
-      const foundTx = await findReplacementTx(provider, transfer.ethCache.safeReorgHeight, tx, event)
+      const foundTx = await findReplacementTx(provider, transfer.ethCache.safeReorgHeight, tx)
       if (!foundTx) return transfer
       mintReceipt = await provider.getTransactionReceipt(foundTx.hash)
     } catch (error) {
       console.error(error)
-      if (error instanceof SearchError || error instanceof TxValidationError) {
+      if (error instanceof TxValidationError) {
         return {
           ...transfer,
           errors: [...transfer.errors, error.message],

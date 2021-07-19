@@ -11,7 +11,7 @@ import * as status from '@near-eth/client/dist/statuses'
 import { stepsFor } from '@near-eth/client/dist/i18nHelpers'
 import { track } from '@near-eth/client'
 import { borshifyOutcomeProof, urlParams, nearOnEthSyncHeight, findNearProof } from '@near-eth/utils'
-import { findReplacementTx, SearchError, TxValidationError } from 'find-replacement-tx'
+import { findReplacementTx, TxValidationError } from 'find-replacement-tx'
 import { getEthProvider, getNearAccount, formatLargeNum, getSignerProvider } from '@near-eth/client/dist/utils'
 import getNep141Address from '../getAddress'
 import getErc20Name from '../../natural-erc20/getName'
@@ -631,6 +631,7 @@ async function unlock (transfer) {
       from: pendingUnlockTx.from,
       to: pendingUnlockTx.to,
       safeReorgHeight,
+      data: pendingUnlockTx.data,
       nonce: pendingUnlockTx.nonce
     },
     unlockHashes: [...transfer.unlockHashes, pendingUnlockTx.hash]
@@ -660,25 +661,15 @@ async function checkUnlock (transfer) {
       const tx = {
         nonce: transfer.ethCache.nonce,
         from: transfer.ethCache.from,
-        to: transfer.ethCache.to || process.env.ethLockerAddress
+        to: transfer.ethCache.to,
+        data: transfer.ethCache.data
       }
-      const event = {
-        name: 'Unlocked',
-        abi: process.env.ethLockerAbiText,
-        address: process.env.ethLockerAddress,
-        validate: ({ returnValues: { amount, recipient } }) => {
-          return (
-            amount.toString() === transfer.amount &&
-            recipient.toLowerCase() === transfer.recipient.toLowerCase()
-          )
-        }
-      }
-      const foundTx = await findReplacementTx(provider, transfer.ethCache.safeReorgHeight, tx, event)
+      const foundTx = await findReplacementTx(provider, transfer.ethCache.safeReorgHeight, tx)
       if (!foundTx) return transfer
       unlockReceipt = await provider.getTransactionReceipt(foundTx.hash)
     } catch (error) {
       console.error(error)
-      if (error instanceof SearchError || error instanceof TxValidationError) {
+      if (error instanceof TxValidationError) {
         return {
           ...transfer,
           errors: [...transfer.errors, error.message],

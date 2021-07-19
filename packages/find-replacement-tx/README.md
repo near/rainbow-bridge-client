@@ -68,7 +68,7 @@ const tx = {
   nonce: pendingApprovalTx.nonce,
   from: pendingApprovalTx.from,
   to: pendingApprovalTx.to,
-  data: pendingApprovalTx.input, // (optional)
+  data: pendingApprovalTx.data, // (optional)
   value: pendingApprovalTx.value // (optional)
 }
 // Validating an event is optional as tx.data should be sufficient in most cases.

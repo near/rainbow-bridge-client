@@ -12,7 +12,7 @@ import * as status from '@near-eth/client/dist/statuses'
 import { stepsFor } from '@near-eth/client/dist/i18nHelpers'
 import { track } from '@near-eth/client'
 import { borshifyOutcomeProof, urlParams, nearOnEthSyncHeight, findNearProof } from '@near-eth/utils'
-import { findReplacementTx, SearchError, TxValidationError } from 'find-replacement-tx'
+import { findReplacementTx, TxValidationError } from 'find-replacement-tx'
 import { getEthProvider, getNearAccount, formatLargeNum, getSignerProvider } from '@near-eth/client/dist/utils'
 
 export const SOURCE_NETWORK = 'near'
@@ -683,7 +683,7 @@ async function checkUnlock (transfer) {
       unlockReceipt = await provider.getTransactionReceipt(foundTx.hash)
     } catch (error) {
       console.error(error)
-      if (error instanceof SearchError || error instanceof TxValidationError) {
+      if (error instanceof TxValidationError) {
         return {
           ...transfer,
           errors: [...transfer.errors, error.message],

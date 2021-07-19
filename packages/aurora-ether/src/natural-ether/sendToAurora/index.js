@@ -3,7 +3,7 @@ import { track } from '@near-eth/client'
 import { stepsFor } from '@near-eth/client/dist/i18nHelpers'
 import * as status from '@near-eth/client/dist/statuses'
 import { getEthProvider, getSignerProvider, getNearAccount, formatLargeNum } from '@near-eth/client/dist/utils'
-import { findReplacementTx, SearchError, TxValidationError } from 'find-replacement-tx'
+import { findReplacementTx, TxValidationError } from 'find-replacement-tx'
 import { ethOnNearSyncHeight, findEthProof } from '@near-eth/utils'
 
 export const SOURCE_NETWORK = 'ethereum'
@@ -233,7 +233,8 @@ async function lock (transfer) {
       from: pendingLockTx.from,
       to: pendingLockTx.to,
       nonce: pendingLockTx.nonce,
-      data: pendingLockTx.input,
+      data: pendingLockTx.data,
+      value: pendingLockTx.value.toString(),
       safeReorgHeight
     },
     lockHashes: [...transfer.lockHashes, pendingLockTx.hash]
@@ -261,14 +262,15 @@ async function checkLock (transfer) {
         nonce: transfer.ethCache.nonce,
         from: transfer.ethCache.from,
         to: transfer.ethCache.to,
-        data: transfer.ethCache.data
+        data: transfer.ethCache.data,
+        value: transfer.ethCache.value
       }
       const foundTx = await findReplacementTx(provider, transfer.ethCache.safeReorgHeight, tx)
       if (!foundTx) return transfer
       lockReceipt = await provider.getTransactionReceipt(foundTx.hash)
     } catch (error) {
       console.error(error)
-      if (error instanceof SearchError || error instanceof TxValidationError) {
+      if (error instanceof TxValidationError) {
         return {
           ...transfer,
           errors: [...transfer.errors, error.message],

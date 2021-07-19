@@ -1,6 +1,6 @@
 {
   "name": "@near-eth/nep141-erc20",
-  "version": "1.6.0-2",
+  "version": "1.6.0-3",
   "license": "(MIT AND Apache-2.0)",
   "main": "dist/index.js",
   "files": [

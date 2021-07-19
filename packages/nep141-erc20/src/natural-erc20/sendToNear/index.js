@@ -8,7 +8,7 @@ import { stepsFor } from '@near-eth/client/dist/i18nHelpers'
 import * as status from '@near-eth/client/dist/statuses'
 import { getEthProvider, getNearAccount, formatLargeNum, getSignerProvider } from '@near-eth/client/dist/utils'
 import { urlParams, ethOnNearSyncHeight, findEthProof } from '@near-eth/utils'
-import { findReplacementTx, SearchError, TxValidationError } from 'find-replacement-tx'
+import { findReplacementTx, TxValidationError } from 'find-replacement-tx'
 import getName from '../getName'
 import getAllowance from '../getAllowance'
 import { getDecimals } from '../getMetadata'
@@ -262,6 +262,7 @@ async function approve (transfer) {
       from: pendingApprovalTx.from,
       to: pendingApprovalTx.to,
       safeReorgHeight,
+      data: pendingApprovalTx.data,
       nonce: pendingApprovalTx.nonce
     },
     approvalHashes: [...transfer.approvalHashes, pendingApprovalTx.hash],
@@ -292,27 +293,15 @@ async function checkApprove (transfer) {
       const tx = {
         nonce: transfer.ethCache.nonce,
         from: transfer.ethCache.from,
-        to: transfer.ethCache.to || transfer.sourceToken
+        to: transfer.ethCache.to,
+        data: transfer.ethCache.data
       }
-      const event = {
-        name: 'Approval',
-        abi: process.env.ethErc20AbiText,
-        address: transfer.sourceToken,
-        validate: ({ returnValues: { owner, spender, value } }) => {
-          return (
-            owner.toLowerCase() === transfer.sender.toLowerCase() &&
-            spender.toLowerCase() === process.env.ethLockerAddress.toLowerCase()
-            // Don't check value as the user may have increased approval before signing.
-            // value.toString() === transfer.amount
-          )
-        }
-      }
-      const foundTx = await findReplacementTx(provider, transfer.ethCache.safeReorgHeight, tx, event)
+      const foundTx = await findReplacementTx(provider, transfer.ethCache.safeReorgHeight, tx)
       if (!foundTx) return transfer
       approvalReceipt = await provider.getTransactionReceipt(foundTx.hash)
     } catch (error) {
       console.error(error)
-      if (error instanceof SearchError || error instanceof TxValidationError) {
+      if (error instanceof TxValidationError) {
         return {
           ...transfer,
           errors: [...transfer.errors, error.message],
@@ -389,6 +378,7 @@ async function lock (transfer) {
       from: pendingLockTx.from,
       to: pendingLockTx.to,
       safeReorgHeight,
+      data: pendingLockTx.data,
       nonce: pendingLockTx.nonce
     },
     lockHashes: [...transfer.lockHashes, pendingLockTx.hash]
@@ -417,27 +407,15 @@ async function checkLock (transfer) {
       const tx = {
         nonce: transfer.ethCache.nonce,
         from: transfer.ethCache.from,
-        to: transfer.ethCache.to || process.env.ethLockerAddress
+        to: transfer.ethCache.to,
+        data: transfer.ethCache.data
       }
-      const event = {
-        name: 'Locked',
-        abi: process.env.ethLockerAbiText,
-        address: process.env.ethLockerAddress,
-        validate: ({ returnValues: { token, sender, amount, accountId } }) => {
-          return (
-            token.toLowerCase() === transfer.sourceToken.toLowerCase() &&
-            sender.toLowerCase() === transfer.sender.toLowerCase() &&
-            amount.toString() === transfer.amount &&
-            accountId === transfer.recipient
-          )
-        }
-      }
-      const foundTx = await findReplacementTx(provider, transfer.ethCache.safeReorgHeight, tx, event)
+      const foundTx = await findReplacementTx(provider, transfer.ethCache.safeReorgHeight, tx)
       if (!foundTx) return transfer
       lockReceipt = await provider.getTransactionReceipt(foundTx.hash)
     } catch (error) {
       console.error(error)
-      if (error instanceof SearchError || error instanceof TxValidationError) {
+      if (error instanceof TxValidationError) {
         return {
           ...transfer,
           errors: [...transfer.errors, error.message],

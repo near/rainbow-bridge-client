@@ -1,0 +1,9 @@
+releases:
+  "@near-eth/aurora-erc20": prerelease
+  "@near-eth/aurora-ether": prerelease
+  "@near-eth/near-ether": prerelease
+  "@near-eth/nep141-erc20": prerelease
+  rainbow-bridge-client-monorepo: patch
+
+declined:
+  - find-replacement-tx

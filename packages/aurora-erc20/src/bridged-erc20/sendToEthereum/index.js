@@ -14,7 +14,7 @@ import {
   getNearAccount,
   formatLargeNum
 } from '@near-eth/client/dist/utils'
-import { findReplacementTx, SearchError, TxValidationError } from 'find-replacement-tx'
+import { findReplacementTx, TxValidationError } from 'find-replacement-tx'
 import getErc20Name from '../../natural-erc20/getName'
 import { getDecimals } from '../../natural-erc20/getMetadata'
 
@@ -56,7 +56,7 @@ const transferDraft = {
   //   to,                       // tx.to of last broadcasted eth tx (can be multisig contract)
   //   safeReorgHeight,          // Lower boundary for replacement tx search
   //   nonce                     // tx.nonce of last broadcasted eth tx
-  //   data                     // tx.input of last broadcasted eth tx
+  //   data                     // tx.data of last broadcasted eth tx
   // }
 
   // Attributes specific to natural-erc20-to-nep141 transfers
@@ -364,7 +364,7 @@ async function checkBurn (transfer) {
       const tx = {
         nonce: transfer.ethCache.nonce,
         from: transfer.ethCache.from,
-        // TODO check data is valid when Aurora rpc is complete and contains tx.input (currently "0x")
+        // TODO check data is valid when Aurora rpc is complete and contains tx.data (currently "0x")
         data: transfer.ethCache.data,
         to: transfer.ethCache.to
       }
@@ -388,7 +388,7 @@ async function checkBurn (transfer) {
       burnReceipt = await provider.send('eth_getTransactionReceipt', [foundTx.hash])
     } catch (error) {
       console.error(error)
-      if (error instanceof SearchError || error instanceof TxValidationError) {
+      if (error instanceof TxValidationError) {
         return {
           ...transfer,
           errors: [...transfer.errors, error.message],
@@ -649,7 +649,7 @@ async function checkUnlock (transfer) {
       unlockReceipt = await provider.getTransactionReceipt(foundTx.hash)
     } catch (error) {
       console.error(error)
-      if (error instanceof SearchError || error instanceof TxValidationError) {
+      if (error instanceof TxValidationError) {
         return {
           ...transfer,
           errors: [...transfer.errors, error.message],
